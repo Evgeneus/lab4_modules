@@ -1,0 +1,1 @@
+cmd_/home/evgeny/programs_linux/lab4_module/hello-1.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-3.11.0-26-generic/scripts/module-common.lds --build-id  -o /home/evgeny/programs_linux/lab4_module/hello-1.ko /home/evgeny/programs_linux/lab4_module/hello-1.o /home/evgeny/programs_linux/lab4_module/hello-1.mod.o

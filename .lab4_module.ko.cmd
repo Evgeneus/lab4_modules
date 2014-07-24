@@ -1,1 +1,0 @@
-cmd_/home/evgeny/programs_linux/lab4_module/lab4_module.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-3.11.0-26-generic/scripts/module-common.lds --build-id  -o /home/evgeny/programs_linux/lab4_module/lab4_module.ko /home/evgeny/programs_linux/lab4_module/lab4_module.o /home/evgeny/programs_linux/lab4_module/lab4_module.mod.o

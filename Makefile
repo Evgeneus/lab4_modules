@@ -8,3 +8,4 @@ clean:
 	rm -f *.order
 	rm -f *.symvers
 	rm -f *.o
+	rm -f *.ko

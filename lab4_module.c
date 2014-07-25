@@ -5,6 +5,7 @@
 #include <linux/stat.h>
 #include <linux/proc_fs.h>
 
+#include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/sched.h>
 
@@ -13,9 +14,13 @@
 MODULE_LICENSE ("GPL");
 MODULE_AUTHOR ("E. O. KRIVOSHEEV");
 
+#define TRUE 1
+#define FALSE 0
+
 static char * wtOperand1 = "nothing";
 static char * wtOperand2 = "nothing";
 static char * wtOperation = "nothing";
+
 
 module_param (wtOperand1, charp, 0000);
 module_param (wtOperand2, charp, 0000);
@@ -25,9 +30,11 @@ MODULE_PARM_DESC (wtOperand1, "Way to the Operand1 file");
 MODULE_PARM_DESC (wtOperand2, "Way to the Operand2 file");
 MODULE_PARM_DESC (wtOperation, "Way to the Operation file");
 
-static int fRead (char * f_to_read)
+static int fRead (char * f_to_read, int flag)
 {
 	struct file *f;
+        int pp;
+        //char *endptr;
     	static char buff[256];
     	size_t n;
 
@@ -49,6 +56,19 @@ static int fRead (char * f_to_read)
                 printk (KERN_ALERT "kernel_read failed\n");
   	} 
 
+        //if (flag) {
+        //        printk (KERN_ALERT "I'm bool flag!\n");
+        //}
+        //pp = simple_strtol(buff, NULL, 10);
+        //kstrtol (buff, 10, &pp);
+        //opl++;
+
+        pp = (int)simple_strtol(buff, NULL, 10);
+        pp++;
+
+        if (flag) printk (KERN_ALERT "I'm flag!\n");
+
+        printk(KERN_ALERT "int: %i\n", pp);
    	filp_close (f, current->files);
    	return 0;
 }
@@ -64,10 +84,9 @@ static int __init modInit (void)
     		printk(KERN_INFO "Error creating proc entry");
     		return -ENOMEM;
     	}*/
-
-    	fRead (wtOperand1);
-        fRead (wtOperand2);
-        fRead (wtOperation);
+    	fRead (wtOperand1, FALSE);
+        fRead (wtOperand2, TRUE);
+        //fRead (wtOperation);
 	printk (KERN_ALERT "Hello, I'm a calculator module!");
 	printk (KERN_ALERT "Way to the Operand1 file: %s\n", wtOperand1);
 	printk (KERN_ALERT "Way to the Operand2 file: %s\n", wtOperand2);

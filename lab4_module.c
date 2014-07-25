@@ -4,7 +4,6 @@
 #include <linux/init.h>
 #include <linux/stat.h>
 #include <linux/proc_fs.h>
-
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/sched.h>
@@ -14,12 +13,17 @@
 MODULE_LICENSE ("GPL");
 MODULE_AUTHOR ("E. O. KRIVOSHEEV");
 
-#define TRUE 1
-#define FALSE 0
+#define OPERAND1 0
+#define OPERAND2 1
+#define OPERATION 2
 
 static char * wtOperand1 = "nothing";
 static char * wtOperand2 = "nothing";
 static char * wtOperation = "nothing";
+static int operand1 = 0;
+static int operand2 = 0;
+static int result = 0;
+
 
 
 module_param (wtOperand1, charp, 0000);
@@ -30,10 +34,9 @@ MODULE_PARM_DESC (wtOperand1, "Way to the Operand1 file");
 MODULE_PARM_DESC (wtOperand2, "Way to the Operand2 file");
 MODULE_PARM_DESC (wtOperation, "Way to the Operation file");
 
-static int fRead (char * f_to_read, int flag)
+static int fRead (char * f_to_read, int action)
 {
         struct file *f;
-        //char *endptr;
         static char buff[256];
         size_t n;
 
@@ -55,30 +58,43 @@ static int fRead (char * f_to_read, int flag)
                 printk (KERN_ALERT "kernel_read failed\n");
         } 
 
-
-        if (flag) {
+// choice the action
+        if (action == 0) {
+                operand1 = (int)simple_strtol(buff, NULL, 10);
+                printk(KERN_ALERT "operand1 : %i\n", operand1);
+        } else
+        if (action == 1) {
+                operand2 = (int)simple_strtol(buff, NULL, 10);
+                printk(KERN_ALERT "operand2 : %i\n", operand2);
+        } else
+        if (action == 2) {
                 switch (*buff) {
                         case '/' : 
-                                printk (KERN_ALERT "YYYYYYYYYYYYYYY!\n");
-                                break;     
-                        default : 
-                                printk (KERN_ALERT "Nooooooooooo!\n");
+                                result = operand1 / operand2;
+                                printk (KERN_ALERT "operand1 / operand2 = %i\n", result);
                                 break;
+                        case '*' : 
+                                result = operand1 * operand2;
+                                printk (KERN_ALERT "operand1 * operand2 = %i\n", result);
+                                break;
+                        case '+' : 
+                                result = operand1 + operand2;
+                                printk (KERN_ALERT "operand1 + operand2 = %i\n", result);
+                                break;
+                        case '-' : 
+                                result = operand1 - operand2;
+                                printk (KERN_ALERT "operand1 - operand2 = %i\n", result);
+                                break;
+                        default : 
+                                printk (KERN_ALERT "OPERAND ERROR!\n");
+                                return 1;
                 }
+        } else return 1;
 
-                printk (KERN_ALERT "I'm flag!\n");
-        } else {
-                int pp;
-                pp = (int)simple_strtol(buff, NULL, 10);
-                pp++;
-                printk(KERN_ALERT "int: %i\n", pp);
-        }
 
         filp_close (f, current->files);
         return 0;
 }
-
-
 
 
 static int __init modInit (void)
@@ -89,13 +105,11 @@ static int __init modInit (void)
                 printk(KERN_INFO "Error creating proc entry");
                 return -ENOMEM;
         }*/
-        fRead (wtOperand1, FALSE);
-        fRead (wtOperand2, FALSE);
-        fRead (wtOperation, TRUE);
         printk (KERN_ALERT "Hello, I'm a calculator module!");
-        printk (KERN_ALERT "Way to the Operand1 file: %s\n", wtOperand1);
-        printk (KERN_ALERT "Way to the Operand2 file: %s\n", wtOperand2);
-        printk (KERN_ALERT "Way to the Operation file: %s\n", wtOperation);
+        if(fRead (wtOperand1, OPERAND1)) return 1;
+        if (fRead (wtOperand2, OPERAND2)) return 1;
+        if (fRead (wtOperation, OPERATION)) return 1;
+
         return 0;
 }
 

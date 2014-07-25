@@ -32,45 +32,50 @@ MODULE_PARM_DESC (wtOperation, "Way to the Operation file");
 
 static int fRead (char * f_to_read, int flag)
 {
-	struct file *f;
-        int pp;
+        struct file *f;
         //char *endptr;
-    	static char buff[256];
-    	size_t n;
+        static char buff[256];
+        size_t n;
 
-    	printk (KERN_ALERT "openning file: %s\n", f_to_read);
-   	
+        printk (KERN_ALERT "openning file: %s\n", f_to_read);
+        
         f = filp_open (f_to_read, O_RDONLY, 0);
-   	
+        
         if (!f) {
                 printk(KERN_ALERT "file open failed: %s\n",f_to_read);
-     	        return 1;    
-   	}
+                return 1;    
+        }
 
-  	n = kernel_read (f, 0, buff, 255);
+        n = kernel_read (f, 0, buff, 255);
 
-    	if (kernel_read (f, 0, buff, 255)) {
-   	     	buff[n] = 0;
-       		printk (KERN_ALERT "read first %d bytes: %s\n", 255, buff);
-   	} else {
+        if (kernel_read (f, 0, buff, 255)) {
+                buff[n] = 0;
+                printk (KERN_ALERT "read first %d bytes: %s\n", 255, buff);
+        } else {
                 printk (KERN_ALERT "kernel_read failed\n");
-  	} 
+        } 
 
-        //if (flag) {
-        //        printk (KERN_ALERT "I'm bool flag!\n");
-        //}
-        //pp = simple_strtol(buff, NULL, 10);
-        //kstrtol (buff, 10, &pp);
-        //opl++;
 
-        pp = (int)simple_strtol(buff, NULL, 10);
-        pp++;
+        if (flag) {
+                switch (*buff) {
+                        case '/' : 
+                                printk (KERN_ALERT "YYYYYYYYYYYYYYY!\n");
+                                break;     
+                        default : 
+                                printk (KERN_ALERT "Nooooooooooo!\n");
+                                break;
+                }
 
-        if (flag) printk (KERN_ALERT "I'm flag!\n");
+                printk (KERN_ALERT "I'm flag!\n");
+        } else {
+                int pp;
+                pp = (int)simple_strtol(buff, NULL, 10);
+                pp++;
+                printk(KERN_ALERT "int: %i\n", pp);
+        }
 
-        printk(KERN_ALERT "int: %i\n", pp);
-   	filp_close (f, current->files);
-   	return 0;
+        filp_close (f, current->files);
+        return 0;
 }
 
 
@@ -78,25 +83,25 @@ static int fRead (char * f_to_read, int flag)
 
 static int __init modInit (void)
 {
-	/*proc_parent = proc_mkdir("lab4_modules",NULL) ;
-	if(!proc_parent)
-     	{
-    		printk(KERN_INFO "Error creating proc entry");
-    		return -ENOMEM;
-    	}*/
-    	fRead (wtOperand1, FALSE);
-        fRead (wtOperand2, TRUE);
-        //fRead (wtOperation);
-	printk (KERN_ALERT "Hello, I'm a calculator module!");
-	printk (KERN_ALERT "Way to the Operand1 file: %s\n", wtOperand1);
-	printk (KERN_ALERT "Way to the Operand2 file: %s\n", wtOperand2);
-	printk (KERN_ALERT "Way to the Operation file: %s\n", wtOperation);
-	return 0;
+        /*proc_parent = proc_mkdir("lab4_modules",NULL) ;
+        if(!proc_parent)
+        {
+                printk(KERN_INFO "Error creating proc entry");
+                return -ENOMEM;
+        }*/
+        fRead (wtOperand1, FALSE);
+        fRead (wtOperand2, FALSE);
+        fRead (wtOperation, TRUE);
+        printk (KERN_ALERT "Hello, I'm a calculator module!");
+        printk (KERN_ALERT "Way to the Operand1 file: %s\n", wtOperand1);
+        printk (KERN_ALERT "Way to the Operand2 file: %s\n", wtOperand2);
+        printk (KERN_ALERT "Way to the Operation file: %s\n", wtOperation);
+        return 0;
 }
 
 static void __exit modExit (void)
 {
-	printk (KERN_ALERT "Goodbye, world!\n");
+        printk (KERN_ALERT "Goodbye, world!\n");
 }
 
 module_init (modInit);

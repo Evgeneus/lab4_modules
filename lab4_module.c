@@ -123,7 +123,7 @@ static int __init modInit (void)
 
 static void __exit modExit (void)
 {
-        remove_proc_entry("hello_proc", NULL);
+        remove_proc_entry("lab4_res_proc", NULL);
         printk (KERN_ALERT "Goodbye, world!\n");
 }
 

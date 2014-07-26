@@ -7,8 +7,8 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/sched.h>
+#include <linux/seq_file.h>
 
-//struct proc_dir_entry *proc_parent; 
 
 MODULE_LICENSE ("GPL");
 MODULE_AUTHOR ("E. O. KRIVOSHEEV");
@@ -96,16 +96,24 @@ static int fRead (char * f_to_read, int action)
         return 0;
 }
 
+static int proc_show (struct seq_file *m, void *v) {
+        seq_printf(m, "result: %i\n", result);
+        return 0;
+}
+
+static int proc_open (struct inode *inode, struct  file *file) {
+        return single_open (file, proc_show, NULL);
+}
+
+static const struct file_operations proc_fops = {
+        .open = proc_open,
+        .read = seq_read,
+};
 
 static int __init modInit (void)
 {
-        /*proc_parent = proc_mkdir("lab4_modules",NULL) ;
-        if(!proc_parent)
-        {
-                printk(KERN_INFO "Error creating proc entry");
-                return -ENOMEM;
-        }*/
         printk (KERN_ALERT "Hello, I'm a calculator module!");
+        proc_create ("lab4_res_proc", 0, NULL, &proc_fops);
         if(fRead (wtOperand1, OPERAND1)) return 1;
         if (fRead (wtOperand2, OPERAND2)) return 1;
         if (fRead (wtOperation, OPERATION)) return 1;
@@ -115,6 +123,7 @@ static int __init modInit (void)
 
 static void __exit modExit (void)
 {
+        remove_proc_entry("hello_proc", NULL);
         printk (KERN_ALERT "Goodbye, world!\n");
 }
 
